@@ -1,6 +1,7 @@
 import React from "react";
 import { tablesApi, tabsApi } from "../../services/pdvApi";
 import { money } from "../../shared/format";
+import { labelFor } from "../../shared/labels";
 
 export function TablesPanel({
   busy,
@@ -25,7 +26,7 @@ export function TablesPanel({
         }}
       >
         <input placeholder="Nova mesa" value={forms.tableNumber} onChange={(e) => updateForm("tableNumber", e.target.value)} />
-        <button disabled={busy}>Criar</button>
+        <button className="primary" disabled={busy}>Criar</button>
       </form>
 
       <div className="table-grid">
@@ -39,7 +40,7 @@ export function TablesPanel({
             }}
           >
             <strong>Mesa {table.number}</strong>
-            <span>{table.status}</span>
+            <span>{labelFor(table.status)}</span>
             <small>{table.totals?.openTabs ?? 0} comandas | {money.format(table.totals?.balance ?? 0)}</small>
           </button>
         ))}
@@ -56,7 +57,7 @@ export function TablesPanel({
             }}
           >
             <input placeholder="Nome da comanda" value={forms.tabName} onChange={(e) => updateForm("tabName", e.target.value)} />
-            <button disabled={busy}>Nova comanda</button>
+            <button className="primary" disabled={busy}>Nova comanda</button>
           </form>
 
           <div className="list">
@@ -66,6 +67,7 @@ export function TablesPanel({
                 <strong>{money.format(tab.totals?.balance ?? 0)}</strong>
               </button>
             ))}
+            {selectedTable.tabs?.length === 0 && <div className="empty">Esta mesa ainda não tem comandas abertas.</div>}
           </div>
 
           {selectedTabId && (
@@ -76,7 +78,7 @@ export function TablesPanel({
                 <option value="">Transferir para...</option>
                 {tables.filter((table) => table.id !== selectedTableId).map((table) => <option key={table.id} value={table.id}>Mesa {table.number}</option>)}
               </select>
-              <button disabled={busy || !forms.transferTargetTableId} onClick={() => run(() => tabsApi.transfer(selectedTabId, forms.transferTargetTableId, "Transferencia pela interface"))}>Transferir</button>
+              <button disabled={busy || !forms.transferTargetTableId} onClick={() => run(() => tabsApi.transfer(selectedTabId, forms.transferTargetTableId, "Transferência pela interface"))}>Transferir</button>
               <button disabled={busy} onClick={() => run(() => tablesApi.close(selectedTable.id))}>Fechar mesa</button>
             </div>
           )}

@@ -1,11 +1,9 @@
 import React from "react";
-import { CatalogPanel } from "../features/catalog/CatalogPanel";
-import { CheckoutPanel } from "../features/checkout/CheckoutPanel";
+import { CashPanel } from "../features/cash/CashPanel";
 import { KitchenPanel } from "../features/kitchen/KitchenPanel";
-import { OrderPanel } from "../features/orders/OrderPanel";
+import { StockPanel } from "../features/stock/StockPanel";
 import { TablesPanel } from "../features/tables/TablesPanel";
 import { useWorkspace } from "../context/PdvWorkspaceContext";
-import { addProductToCart } from "./helpers";
 
 export function DashboardPage() {
   const workspace = useWorkspace();
@@ -14,27 +12,23 @@ export function DashboardPage() {
     <>
       <section className="grid two">
         <TablesPanel {...workspace} updateForm={workspace.updateForm} />
-        <CatalogPanel
-          areas={workspace.areas}
+        <CashPanel
           busy={workspace.busy}
-          categories={workspace.categories}
+          cash={workspace.cash}
           forms={workspace.forms}
-          groupedProducts={workspace.groupedProducts}
-          onAddProduct={(product) => addProductToCart(workspace, product)}
           run={workspace.run}
           updateForm={workspace.updateForm}
         />
       </section>
 
-      <section className="grid three">
-        <OrderPanel {...workspace} />
+      <section className="grid two">
         <KitchenPanel busy={workspace.busy} run={workspace.run} tickets={workspace.tickets} />
-        <CheckoutPanel
+        <StockPanel
           busy={workspace.busy}
-          cash={workspace.cash}
           forms={workspace.forms}
+          movements={workspace.movements}
+          products={workspace.products}
           run={workspace.run}
-          tabSummary={workspace.tabSummary}
           updateForm={workspace.updateForm}
         />
       </section>

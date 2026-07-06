@@ -1,6 +1,6 @@
 import React from "react";
 import { cashApi } from "../../services/pdvApi";
-import { money } from "../../shared/format";
+import { money, parseMoneyInput } from "../../shared/format";
 
 export function CashPanel({ busy, cash, forms, run, updateForm }) {
   return (
@@ -12,13 +12,13 @@ export function CashPanel({ busy, cash, forms, run, updateForm }) {
           <p className="muted">Vendas {money.format(cash.summary?.saleTotal ?? 0)}</p>
           <div className="inline">
             <input placeholder="Valor contado" value={forms.closingAmount} onChange={(e) => updateForm("closingAmount", e.target.value)} />
-            <button disabled={busy} onClick={() => run(() => cashApi.close(cash.id, Number(forms.closingAmount)))}>Fechar caixa</button>
+            <button className="primary" disabled={busy} onClick={() => run(() => cashApi.close(cash.id, parseMoneyInput(forms.closingAmount)))}>Fechar caixa</button>
           </div>
         </>
       ) : (
         <div className="inline">
           <input placeholder="Valor inicial" value={forms.openingAmount} onChange={(e) => updateForm("openingAmount", e.target.value)} />
-          <button disabled={busy} onClick={() => run(() => cashApi.open(Number(forms.openingAmount)))}>Abrir caixa</button>
+          <button className="primary" disabled={busy} onClick={() => run(() => cashApi.open(parseMoneyInput(forms.openingAmount)))}>Abrir caixa</button>
         </div>
       )}
     </div>

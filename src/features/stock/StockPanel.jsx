@@ -1,6 +1,7 @@
 import React from "react";
 import { stockApi } from "../../services/pdvApi";
 import { asNumber } from "../../shared/format";
+import { labelFor } from "../../shared/labels";
 
 export function StockPanel({ busy, forms, movements, products, run, updateForm }) {
   return (
@@ -15,11 +16,11 @@ export function StockPanel({ busy, forms, movements, products, run, updateForm }
           <option value="ENTRADA">Entrada</option>
           <option value="AJUSTE_MANUAL">Ajuste</option>
           <option value="PERDA">Perda</option>
-          <option value="DEVOLUCAO">Devolucao</option>
+          <option value="DEVOLUCAO">Devolução</option>
         </select>
         <input placeholder="Quantidade" value={forms.stockQuantity} onChange={(e) => updateForm("stockQuantity", e.target.value)} />
         <input placeholder="Motivo" value={forms.stockReason} onChange={(e) => updateForm("stockReason", e.target.value)} />
-        <button disabled={busy} onClick={() => run(() => stockApi.createMovement({
+        <button className="primary" disabled={busy} onClick={() => run(() => stockApi.createMovement({
           productId: forms.stockProductId,
           type: forms.stockType,
           quantity: Number(forms.stockQuantity),
@@ -29,10 +30,11 @@ export function StockPanel({ busy, forms, movements, products, run, updateForm }
       <div className="list compact">
         {movements.slice(0, 8).map((movement) => (
           <div className="row" key={movement.id}>
-            <span>{movement.product?.name} | {movement.type}</span>
+            <span>{movement.product?.name} | {labelFor(movement.type)}</span>
             <strong>{asNumber(movement.quantity)}</strong>
           </div>
         ))}
+        {movements.length === 0 && <div className="empty">Nenhuma movimentação de estoque registrada.</div>}
       </div>
     </div>
   );

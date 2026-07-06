@@ -1,7 +1,7 @@
 import React from "react";
-import { CatalogPanel } from "../features/catalog/CatalogPanel";
+import { MenuPanel } from "../features/catalog/MenuPanel";
 import { OrderPanel } from "../features/orders/OrderPanel";
-import { TablesPanel } from "../features/tables/TablesPanel";
+import { WaiterTablesPanel } from "../features/waiter/WaiterTablesPanel";
 import { useWorkspace } from "../context/PdvWorkspaceContext";
 import { addProductToCart } from "./helpers";
 
@@ -10,22 +10,18 @@ export function SalaPage() {
 
   return (
     <>
-      <section className="grid two">
-        <TablesPanel {...workspace} updateForm={workspace.updateForm} />
-        <CatalogPanel
-          areas={workspace.areas}
-          busy={workspace.busy}
-          categories={workspace.categories}
-          forms={workspace.forms}
-          groupedProducts={workspace.groupedProducts}
-          onAddProduct={(product) => addProductToCart(workspace, product)}
-          run={workspace.run}
-          updateForm={workspace.updateForm}
-        />
+      <section className="grid one">
+        <WaiterTablesPanel {...workspace} />
       </section>
-      <section className="grid two">
-        <OrderPanel {...workspace} />
-      </section>
+      {workspace.selectedTable && (
+        <section id="waiter-menu" className="grid waiter-order">
+          <MenuPanel
+            groupedProducts={workspace.groupedProducts}
+            onAddProduct={(product) => addProductToCart(workspace, product)}
+          />
+          <OrderPanel {...workspace} />
+        </section>
+      )}
     </>
   );
 }

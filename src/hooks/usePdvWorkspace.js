@@ -8,6 +8,7 @@ const initialForms = {
   productName: "",
   productPrice: "",
   productStock: "0",
+  productImageUrl: "",
   categoryId: "",
   productionAreaId: "",
   available: true,

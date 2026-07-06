@@ -1,6 +1,7 @@
 import React from "react";
 import { ordersApi, paymentsApi, tabsApi } from "../../services/pdvApi";
-import { asNumber, money } from "../../shared/format";
+import { asNumber, money, parseMoneyInput } from "../../shared/format";
+import { labelFor } from "../../shared/labels";
 
 export function CheckoutPanel({ busy, cash, forms, run, tabSummary, updateForm }) {
   return (
@@ -15,16 +16,17 @@ export function CheckoutPanel({ busy, cash, forms, run, tabSummary, updateForm }
               type="checkbox"
               checked={tabSummary.serviceFeeEnabled}
               onChange={(e) => run(() => tabsApi.update(tabSummary.id, { serviceFeeEnabled: e.target.checked }))}
-            /> Taxa de servico
+            /> Taxa de serviço
           </label>
           <div className="list">
             {tabSummary.orders?.map((order) => (
               <div className="ticket" key={order.id}>
-                <strong>Pedido {order.sequentialNumber} | {order.status}</strong>
+                <strong>Pedido {order.sequentialNumber}</strong>
+                <span className="badge">{labelFor(order.status)}</span>
                 {order.items.map((item) => (
                   <div className="row" key={item.id}>
                     <span className={item.canceledAt ? "canceled" : ""}>{asNumber(item.quantity)}x {item.product.name}</span>
-                    {!item.canceledAt && <button onClick={() => {
+                    {!item.canceledAt && <button className="destructive" onClick={() => {
                       const reason = window.prompt("Motivo do cancelamento");
                       if (reason) run(() => ordersApi.cancelItem(item.id, reason));
                     }}>Cancelar item</button>}
@@ -38,13 +40,13 @@ export function CheckoutPanel({ busy, cash, forms, run, tabSummary, updateForm }
             <select value={forms.paymentMethod} onChange={(e) => updateForm("paymentMethod", e.target.value)}>
               <option value="MONEY">Dinheiro</option>
               <option value="PIX">PIX</option>
-              <option value="CREDIT_CARD">Credito</option>
-              <option value="DEBIT_CARD">Debito</option>
+              <option value="CREDIT_CARD">Crédito</option>
+              <option value="DEBIT_CARD">Débito</option>
               <option value="ON_CREDIT">Fiado</option>
             </select>
-            <button disabled={busy} onClick={() => run(() => paymentsApi.create({
+            <button className="primary" disabled={busy} onClick={() => run(() => paymentsApi.create({
               tabId: tabSummary.id,
-              amount: Number(forms.paymentAmount),
+              amount: parseMoneyInput(forms.paymentAmount),
               method: forms.paymentMethod,
               cashRegisterId: cash?.id
             }))}>Pagar</button>

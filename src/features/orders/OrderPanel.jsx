@@ -1,5 +1,4 @@
 import React from "react";
-import { ordersApi } from "../../services/pdvApi";
 import { asNumber, money } from "../../shared/format";
 import { labelFor } from "../../shared/labels";
 
@@ -23,11 +22,11 @@ export function OrderPanel({
   busy,
   cart,
   products,
-  run,
   selectedTable,
   selectedTableId,
   selectedTab,
-  selectedTabId,
+  sendWaiterOrderToKitchen,
+  sendingOrder,
   setCart
 }) {
   const cartTotal = cart.reduce((sum, item) => {
@@ -54,6 +53,7 @@ export function OrderPanel({
               type="number"
               min="1"
               value={item.quantity}
+              disabled={sendingOrder}
               onChange={(e) => setCart((current) => current.map((entry) => entry.productId === item.productId ? { ...entry, quantity: Number(e.target.value) } : entry))}
             />
           </div>
@@ -62,20 +62,11 @@ export function OrderPanel({
       </div>
       <strong>Total do rascunho {money.format(cartTotal)}</strong>
       <button
-        className="primary"
-        disabled={busy || !selectedTableId || cart.length === 0}
-        onClick={() =>
-          run(async () => {
-            const order = await ordersApi.createForTable(selectedTableId, {
-              tabId: selectedTabId || undefined,
-              items: cart.map(({ productId, quantity }) => ({ productId, quantity }))
-            });
-            await ordersApi.sendToKitchen(order.id);
-            setCart([]);
-          })
-        }
+        className={sendingOrder ? "sending" : "primary"}
+        disabled={busy || sendingOrder || !selectedTableId || cart.length === 0}
+        onClick={sendWaiterOrderToKitchen}
       >
-        Enviar para cozinha
+        {sendingOrder ? "Enviando..." : "Enviar para cozinha"}
       </button>
 
       {selectedTable && (

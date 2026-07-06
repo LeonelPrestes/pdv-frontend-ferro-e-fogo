@@ -13,6 +13,12 @@ export function loadWorkspaceData() {
   ]);
 }
 
+export const workspaceApi = {
+  tables: () => api("/tables"),
+  products: () => api("/products"),
+  kitchenTickets: () => api("/kitchen/tickets")
+};
+
 export function getTabSummary(tabId) {
   return api(`/tabs/${tabId}/summary`);
 }
@@ -40,6 +46,8 @@ export const catalogApi = {
 };
 
 export const ordersApi = {
+  createAndSendToKitchen: (tableId, payload) =>
+    api(`/tables/${tableId}/orders/send-to-kitchen`, { method: "POST", body: jsonBody(payload) }),
   createForTable: (tableId, payload) =>
     api(`/tables/${tableId}/orders`, { method: "POST", body: jsonBody(payload) }),
   sendToKitchen: (orderId) => api(`/orders/${orderId}/send-to-kitchen`, { method: "POST" }),

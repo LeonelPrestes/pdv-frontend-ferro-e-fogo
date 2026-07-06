@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getTabSummary, loadWorkspaceData } from "../services/pdvApi";
+import { getTabSummary, loadWorkspaceData, ordersApi, workspaceApi } from "../services/pdvApi";
 
 const initialForms = {
   tableNumber: "",
@@ -40,6 +40,7 @@ export function usePdvWorkspace() {
   const [selectedTabId, setSelectedTabId] = useState("");
   const [tabSummary, setTabSummary] = useState(null);
   const [cart, setCart] = useState([]);
+  const [sendingOrder, setSendingOrder] = useState(false);
   const [forms, setForms] = useState(initialForms);
 
   const load = useCallback(async () => {
@@ -116,6 +117,47 @@ export function usePdvWorkspace() {
     }
   }
 
+  async function refreshOrderData() {
+    const [tableData, ticketData, productData] = await Promise.all([
+      workspaceApi.tables(),
+      workspaceApi.kitchenTickets(),
+      workspaceApi.products()
+    ]);
+    setTables(tableData);
+    setTickets(ticketData);
+    setProducts(productData);
+  }
+
+  async function sendWaiterOrderToKitchen() {
+    if (!selectedTableId || cart.length === 0 || sendingOrder) return;
+
+    const cartSnapshot = cart.map((item) => ({ ...item }));
+    const tableId = selectedTableId;
+    const tabId = selectedTabId || undefined;
+
+    setBusy(true);
+    setSendingOrder(true);
+    setError("");
+
+    try {
+      const order = await ordersApi.createAndSendToKitchen(tableId, {
+        tabId,
+        items: cartSnapshot.map(({ productId, quantity }) => ({ productId, quantity }))
+      });
+      if (!tabId && order.tabId) {
+        setSelectedTabId(order.tabId);
+      }
+      setCart([]);
+      await refreshOrderData();
+    } catch (err) {
+      setError(err.message);
+      await refreshOrderData().catch(() => undefined);
+    } finally {
+      setSendingOrder(false);
+      setBusy(false);
+    }
+  }
+
   function updateForm(name, value) {
     setForms((current) => ({ ...current, [name]: value }));
   }
@@ -139,10 +181,12 @@ export function usePdvWorkspace() {
     tabSummary,
     groupedProducts,
     cart,
+    sendingOrder,
     forms,
     setSelectedTableId,
     setSelectedTabId,
     setCart,
+    sendWaiterOrderToKitchen,
     load,
     run,
     updateForm

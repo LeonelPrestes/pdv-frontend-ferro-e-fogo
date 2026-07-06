@@ -71,6 +71,12 @@ button.primary:hover:not(:disabled) {
   color: #ffffff;
 }
 
+button.sending {
+  border-color: var(--warning);
+  background: #f5c542;
+  color: #1d1d1f;
+}
+
 button.destructive {
   color: var(--danger);
 }

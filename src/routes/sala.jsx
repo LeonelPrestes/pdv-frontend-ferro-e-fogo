@@ -17,7 +17,11 @@ export function SalaPage() {
         <section id="waiter-menu" className="grid waiter-order">
           <MenuPanel
             groupedProducts={workspace.groupedProducts}
-            onAddProduct={(product) => addProductToCart(workspace, product)}
+            onAddProduct={(product) => {
+              if (!workspace.sendingOrder) {
+                addProductToCart(workspace, product);
+              }
+            }}
           />
           <OrderPanel {...workspace} />
         </section>
